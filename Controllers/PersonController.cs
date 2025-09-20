@@ -61,6 +61,9 @@ public class PersonController : Controller
     }
 
     [HttpPost("register")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(Person), 200, "application/json")]
+    [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
     public IActionResult Register([FromForm] RegisterForm form)
     {
         Console.WriteLine(form.Invite_Code);
@@ -68,17 +71,24 @@ public class PersonController : Controller
         // It has an id parameter
         if (string.IsNullOrEmpty(form.Invite_Code) || form.Invite_Code != Environment.GetEnvironmentVariable("INVITE_CODE"))
         {
-            return BadRequest("Invalid invite code");
+            return BadRequest(new MessageResponse("Invalid invite code"));
         }
         if (string.IsNullOrEmpty(form.Username) || string.IsNullOrEmpty(form.Password) || form.Discord_Id == 0)
         {
-            return BadRequest("Missing parameters");
+            return BadRequest(new MessageResponse("Missing parameters"));
         }
         else
         {
             // Return json
             var result = DatabaseController.Instance.CreatePerson(form.Username, form.Discord_Id, form.Password);
-            return result == null ? BadRequest("Failed to create person, username or discord_id may already exist") : Ok(JsonSerializer.Serialize(result));
+            if (result != null)
+            {
+                return Ok(JsonSerializer.Serialize(result));
+            }
+            else
+            {
+                return BadRequest(new MessageResponse("Failed to create person, username or discord_id may already exist"));
+            }
         }
     }
 
