@@ -29,6 +29,24 @@ public class DatabaseController
 
     #region Session Handling
 
+    public bool VerifySession(Guid sessionToken)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT id FROM user_sessions WHERE session_token = @session_token AND expires_at > @now", conn);
+        cmd.Parameters.AddWithValue("session_token", sessionToken);
+        cmd.Parameters.AddWithValue("now", DateTime.UtcNow);
+
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return false; // Query failed
+        bool isValid = reader.Read(); // If there's a row, the session is valid
+        conn.CloseAsync();
+        return isValid;
+    }
+
+
+
     /// <summary>
     /// Only call this when sure the person is verified.
     /// </summary>
@@ -81,10 +99,11 @@ public class DatabaseController
         {
             Console.WriteLine("Error deleting old sessions: " + ex.Message + "\n" + ex.StackTrace);
         }
+        finally
+        {
+            conn.CloseAsync();
+        }
     }
-
-
-
 
 
 
@@ -111,10 +130,12 @@ public class DatabaseController
             UInt64 discordId = (UInt64)reader.GetInt64(2);
             DateTime createdAt = reader.GetDateTime(3);
 
+            conn.CloseAsync();
             return new Person(personId, username, discordId, createdAt);
         }
         else
         {
+            conn.CloseAsync();
             return null; // No person found with the given id
         }
     }
@@ -188,10 +209,12 @@ public class DatabaseController
             int personId = reader.GetInt32(0);
             DateTime createdAt = reader.GetDateTime(1);
 
+            conn.CloseAsync();
             return new Person(personId, username, discord_id, createdAt);
         }
         else
         {
+            conn.CloseAsync();
             return null; // Insertion failed
         }
     }
