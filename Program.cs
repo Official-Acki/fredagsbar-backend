@@ -1,9 +1,15 @@
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Tells swagger gen that a nullable int is optional
+    c.MapType<int?>(() => new OpenApiSchema { Type = "integer", Nullable = true });
+});
 builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
