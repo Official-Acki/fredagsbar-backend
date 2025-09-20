@@ -330,8 +330,7 @@ public class DatabaseController
         conn.Open();
 
         using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM beers_drank WHERE DATE(drank_at) = DATE(@date)", conn);
-        cmd.Parameters.AddWithValue("date", date.Date);
-        Console.WriteLine("Date: " + date.Date.ToString());
+        cmd.Parameters.AddWithValue("date", date.ToUniversalTime().Date);
         using var reader = ExecuteCommand(cmd);
         if (reader == null) return 0; // Query failed
         if (reader.Read())
@@ -354,7 +353,7 @@ public class DatabaseController
 
         using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM beers_drank WHERE person_id = @person_id AND DATE(drank_at) = DATE(@date)", conn);
         cmd.Parameters.AddWithValue("person_id", person_id);
-        cmd.Parameters.AddWithValue("date", date.Date);
+        cmd.Parameters.AddWithValue("date", date.ToUniversalTime().Date);
         using var reader = ExecuteCommand(cmd);
         if (reader == null) return 0; // Query failed
         if (reader.Read())

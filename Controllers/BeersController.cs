@@ -59,4 +59,36 @@ public class BeersController : Controller
         }
     }
 
+    [HttpPost("drank/total/self/")]
+    public IActionResult getBeersDrankTotalSelf([FromForm] StandardAuthorizedForm form)
+    {
+        if (form.guid == Guid.Empty)
+        {
+            return BadRequest("Missing guid");
+        }
+        var person = DatabaseController.Instance.GetPerson(form.guid);
+        if (person == null)
+        {
+            return BadRequest("Invalid guid");
+        }
+        var total = DatabaseController.Instance.GetTotalBeersTodayByPerson(person.id);
+        return Ok(total.ToString());
+    }
+
+    [HttpPost("drank/total/today/self/")]
+    public IActionResult getBeersDrankTotalTodaySelf([FromForm] StandardAuthorizedForm form)
+    {
+        if (form.guid == Guid.Empty)
+        {
+            return BadRequest("Missing guid");
+        }
+        var person = DatabaseController.Instance.GetPerson(form.guid);
+        if (person == null)
+        {
+            return BadRequest("Invalid guid");
+        }
+        var total = DatabaseController.Instance.GetTotalBeersTodayByPerson(person.id);
+        return Ok(total.ToString());
+    }
+
 }

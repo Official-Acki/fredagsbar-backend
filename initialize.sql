@@ -3,14 +3,14 @@ CREATE TABLE IF NOT EXISTS persons (
     username VARCHAR(50) UNIQUE NOT NULL,
     discord_id BIGINT UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
 );
 
 CREATE TABLE IF NOT EXISTS user_sessions (
     id SERIAL PRIMARY KEY,
     person_id INT REFERENCES persons(id) ON DELETE CASCADE,
     session_token UUID DEFAULT gen_random_uuid() UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
     expires_at TIMESTAMP NOT NULL
 );
 
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS crates_owed (
 
 CREATE TABLE IF NOT EXISTS crates_given (
     person_id INT REFERENCES persons(id) ON DELETE CASCADE,
-    given_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    given_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
     crates FLOAT DEFAULT 1,
     PRIMARY KEY (person_id, given_at)
 );
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS crates_given (
 -- Time series esque table for tracking beers drank by persons
 CREATE TABLE IF NOT EXISTS beers_drank (
     person_id INT REFERENCES persons(id) ON DELETE CASCADE,
-    drank_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    drank_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
     PRIMARY KEY (person_id, drank_at)
 );
 
