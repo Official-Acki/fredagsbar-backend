@@ -92,4 +92,11 @@ public class AuthController : Controller
         }
         return BadRequest(new MessageResponse("Username or Password isn't provided."));
     }
+
+    [HttpPost("logout")]
+    [Produces("application/json")]
+    public IActionResult Logout([FromForm] Guid? session_token)
+    {
+        throw new NotImplementedException();
+    }
 }
