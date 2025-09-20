@@ -196,6 +196,32 @@ public class DatabaseController
         }
     }
 
+    public Person? GetPerson(Guid session_token)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT p.id, p.username, p.discord_id, p.created_at FROM persons p JOIN user_sessions us ON p.id = us.person_id WHERE us.session_token = @session_token AND us.expires_at > @now", conn);
+        cmd.Parameters.AddWithValue("session_token", session_token);
+        cmd.Parameters.AddWithValue("now", DateTime.UtcNow);
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return null; // Query failed
+        if (reader.Read())
+        {
+            int id = reader.GetInt32(0);
+            string username = reader.GetString(1);
+            UInt64 discordId = (UInt64)reader.GetInt64(2);
+            DateTime createdAt = reader.GetDateTime(3);
+            conn.CloseAsync();
+            return new Person(id, username, discordId, createdAt);
+        }
+        else
+        {
+            conn.CloseAsync();
+            return null; // No person found with the given session token
+        }
+    }
+
     public string? GetPasswordHash(Person person)
     {
         using var conn = new NpgsqlConnection(this.connectionString);
