@@ -6,6 +6,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost", "http://localhost:8081").AllowAnyHeader().AllowAnyMethod();
+        });
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -14,6 +24,8 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwaggerUI();
     //    app.MapOpenApi(); // Removed as it is not a valid method for WebApplication (was from dotnet 9)
 }
+
+app.UseCors();
 
 app.UseHttpsRedirection();
 
