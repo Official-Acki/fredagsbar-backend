@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS crates_owed (
 );
 
 CREATE TABLE IF NOT EXISTS crates_given (
-    -- Composite primary key user and timestamp
     person_id INT REFERENCES persons(id) ON DELETE CASCADE,
     given_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     crates FLOAT DEFAULT 1,
@@ -28,7 +27,7 @@ CREATE TABLE IF NOT EXISTS crates_given (
 );
 
 
--- Time series table for tracking beers drank by persons
+-- Time series esque table for tracking beers drank by persons
 CREATE TABLE IF NOT EXISTS beers_drank (
     person_id INT REFERENCES persons(id) ON DELETE CASCADE,
     drank_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
