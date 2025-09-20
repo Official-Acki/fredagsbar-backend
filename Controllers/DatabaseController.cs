@@ -5,6 +5,7 @@ public class DatabaseController
 {
     // Singleton instance with only a get method, instanciating itself.
     public static DatabaseController Instance { get; } = new DatabaseController();
+    public static float SESSION_VALIDITY_DAYS = Environment.GetEnvironmentVariable("SESSION_VALIDITY_DAYS") != null ? float.Parse(Environment.GetEnvironmentVariable("SESSION_VALIDITY_DAYS")!) : 7;
     private string connectionString;
 
     public DatabaseController()
@@ -59,7 +60,7 @@ public class DatabaseController
 
         using var cmd = new NpgsqlCommand("INSERT INTO user_sessions (person_id, expires_at) VALUES (@person_id, @expires_at) RETURNING id, person_id, session_token, created_at, expires_at", conn);
         cmd.Parameters.AddWithValue("person_id", person.id);
-        cmd.Parameters.AddWithValue("expires_at", DateTime.UtcNow.AddDays(7)); // Sessions last 7 days
+        cmd.Parameters.AddWithValue("expires_at", DateTime.UtcNow.AddDays(SESSION_VALIDITY_DAYS)); // Sessions last 7 days
 
         using var reader = ExecuteCommand(cmd);
         if (reader == null) return null; // Query failed
@@ -80,6 +81,36 @@ public class DatabaseController
         else
         {
             return null; // Insertion failed
+        }
+    }
+
+    public Session? RenewSession(Guid session_token)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("UPDATE user_sessions SET expires_at = @new_expires_at WHERE session_token = @session_token RETURNING id, person_id, session_token, created_at, expires_at", conn);
+        cmd.Parameters.AddWithValue("new_expires_at", DateTime.UtcNow.AddDays(SESSION_VALIDITY_DAYS));
+        cmd.Parameters.AddWithValue("session_token", session_token);
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return null; // Query failed
+        if (reader.Read())
+        {
+            int sessionId = reader.GetInt32(0);
+            int userId = reader.GetInt32(1);
+            Guid newSessionToken = reader.GetGuid(2);
+            DateTime createdAt = reader.GetDateTime(3);
+            DateTime newExpiresAt = reader.GetDateTime(4);
+
+            conn.CloseAsync();
+            this.CloseOldSessions();
+
+            return new Session(sessionId, userId, newSessionToken, createdAt, newExpiresAt);
+        }
+        else
+        {
+            conn.CloseAsync();
+            return null; // Update failed
         }
     }
 
@@ -217,10 +248,5 @@ public class DatabaseController
             conn.CloseAsync();
             return null; // Insertion failed
         }
-    }
-
-    public Session? RenewSession(Guid value)
-    {
-        throw new NotImplementedException();
     }
 }
