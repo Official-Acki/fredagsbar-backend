@@ -1,5 +1,6 @@
 using Npgsql;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Mvc;
 
 public class DatabaseController
 {
@@ -140,7 +141,7 @@ public class DatabaseController
 
 
     #endregion
-
+    #region Person Handling
 
 
 
@@ -275,4 +276,130 @@ public class DatabaseController
             return null; // Insertion failed
         }
     }
+
+    #endregion
+
+    #region Beer Handling
+
+    public int GetTotalBeers()
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM beers_drank", conn);
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return 0; // Query failed
+        if (reader.Read())
+        {
+            int totalBeers = reader.GetInt32(0);
+            conn.CloseAsync();
+            return totalBeers;
+        }
+        else
+        {
+            conn.CloseAsync();
+            return 0; // No beers found
+        }
+    }
+
+    public int GetTotalBeersByPerson(int person_id)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM beers_drank WHERE person_id = @person_id", conn);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return 0; // Query failed
+        if (reader.Read())
+        {
+            int totalBeers = reader.GetInt32(0);
+            conn.CloseAsync();
+            return totalBeers;
+        }
+        else
+        {
+            conn.CloseAsync();
+            return 0; // No beers found
+        }
+    }
+
+    public int GetTotalBeers(DateTime date)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM beers_drank WHERE DATE(drank_at) = DATE(@date)", conn);
+        cmd.Parameters.AddWithValue("date", date.Date);
+        Console.WriteLine("Date: " + date.Date.ToString());
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return 0; // Query failed
+        if (reader.Read())
+        {
+            int totalBeers = reader.GetInt32(0);
+            conn.CloseAsync();
+            return totalBeers;
+        }
+        else
+        {
+            conn.CloseAsync();
+            return 0; // No beers found
+        }
+    }
+
+    public int GetTotalBeersByPerson(DateTime date, int person_id)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM beers_drank WHERE person_id = @person_id AND DATE(drank_at) = DATE(@date)", conn);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+        cmd.Parameters.AddWithValue("date", date.Date);
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return 0; // Query failed
+        if (reader.Read())
+        {
+            int totalBeers = reader.GetInt32(0);
+            conn.CloseAsync();
+            return totalBeers;
+        }
+        else
+        {
+            conn.CloseAsync();
+            return 0; // No beers found
+        }
+    }
+
+    public int GetTotalBeersToday()
+    {
+        return GetTotalBeers(DateTime.UtcNow);
+    }
+
+    public int GetTotalBeersTodayByPerson(int person_id)
+    {
+        return GetTotalBeersByPerson(DateTime.UtcNow, person_id);
+    }
+
+    public bool AddBeerToPerson(int person_id)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("INSERT INTO beers_drank (person_id) VALUES (@person_id)", conn);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+        try
+        {
+            int rowsAffected = cmd.ExecuteNonQuery();
+            conn.CloseAsync();
+            return rowsAffected > 0; // Return true if at least one row was inserted
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error adding beer: " + ex.Message + "\n" + ex.StackTrace);
+            conn.CloseAsync();
+            return false; // Insertion failed
+        }
+    }
+
+    #endregion
 }
