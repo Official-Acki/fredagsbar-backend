@@ -94,8 +94,9 @@ public class PersonController : Controller
 
     public class LoginForm
     {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+        public Guid? Session_Token { get; set; }
     }
 
     // Returns 200 json
@@ -121,6 +122,20 @@ public class PersonController : Controller
                 }
             }
             return BadRequest(new MessageResponse("Username or Password is wrong."));
+        }
+        else if (form.Session_Token != null)
+        {
+            bool valid = DatabaseController.Instance.VerifySession(form.Session_Token.Value);
+            if (valid)
+            {
+                Session? session = DatabaseController.Instance.RenewSession(form.Session_Token.Value);
+
+                return Ok(JsonSerializer.Serialize(session));
+            }
+            else
+            {
+                return BadRequest(new MessageResponse("Session is invalid or expired."));
+            }
         }
         return BadRequest(new MessageResponse("Username or Password isn't provided."));
     }

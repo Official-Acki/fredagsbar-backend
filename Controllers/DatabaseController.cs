@@ -219,4 +219,8 @@ public class DatabaseController
         }
     }
 
+    public Session? RenewSession(Guid value)
+    {
+        throw new NotImplementedException();
+    }
 }
