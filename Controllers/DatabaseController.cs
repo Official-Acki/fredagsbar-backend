@@ -402,4 +402,47 @@ public class DatabaseController
     }
 
     #endregion
+
+    #region Leaderboard
+
+    public class LeaderboardEntry {
+        public Person? person { get; set; }
+        public int drank { get; set; }
+    }
+
+    public List<LeaderboardEntry> GetLeaderboardEntries(int amount = 5)
+    {
+        List<LeaderboardEntry> entries = new List<LeaderboardEntry>();
+
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand(@"
+            SELECT persons.id, persons.username, COUNT(beers_drank) AS beers_drank 
+            FROM persons
+            LEFT JOIN beers_drank ON persons.id = beers_drank.person_id
+            GROUP BY persons.id
+            ORDER BY beers_drank DESC
+            LIMIT @amount
+        ", conn);
+        cmd.Parameters.AddWithValue("amount", amount);
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return entries; // Query failed
+        while (reader.Read())
+        {
+            int personId = reader.GetInt32(0);
+            string username = reader.GetString(1);
+            int beersDrank = reader.GetInt32(2);
+
+            entries.Add(new LeaderboardEntry
+            {
+                person = new Person(personId, username, 0, DateTime.MinValue), // Discord ID and created_at are not needed here
+                drank = beersDrank
+            });
+        }
+        conn.CloseAsync();
+        return entries;
+    }
+
+    #endregion
 }
