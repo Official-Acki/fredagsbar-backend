@@ -47,6 +47,23 @@ public class DatabaseController
         return isValid;
     }
 
+    public bool VerifySession(Guid sessionToken, int person_id)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT id FROM user_sessions WHERE session_token = @session_token AND expires_at > @now AND person_id = @person_id", conn);
+        cmd.Parameters.AddWithValue("session_token", sessionToken);
+        cmd.Parameters.AddWithValue("now", DateTime.UtcNow);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return false; // Query failed
+        bool isValid = reader.Read(); // If there's a row, the session is valid
+        conn.CloseAsync();
+        return isValid;
+    }
+
 
 
     /// <summary>
@@ -113,6 +130,29 @@ public class DatabaseController
             conn.CloseAsync();
             return null; // Update failed
         }
+    }
+
+    public bool DeleteSession(Guid session_token)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("DELETE FROM user_sessions WHERE session_token = @guid", conn);
+        cmd.Parameters.AddWithValue("guid", session_token);
+        bool result = false;
+        try
+        {
+            result = cmd.ExecuteNonQuery() > -1 ? true : false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error deleting session: " + ex.Message + "\n" + ex.StackTrace);
+        }
+        finally
+        {
+            conn.CloseAsync();
+        }
+        return result;
     }
 
     private void CloseOldSessions()
@@ -246,7 +286,7 @@ public class DatabaseController
     }
 
     // Method to register a person
-    public Person? CreatePerson(string username, UInt64 discord_id, string password)
+    public Person? CreatePerson(string username, string password)
     {
         // Hash the password before storing it
         password = BCrypt.Net.BCrypt.HashPassword(password);
@@ -255,9 +295,9 @@ public class DatabaseController
         using var conn = new NpgsqlConnection(this.connectionString);
         conn.Open();
 
-        using var cmd = new NpgsqlCommand("INSERT INTO persons (username, discord_id, password_hash) VALUES (@username, @discord_id, @password_hash) RETURNING id, created_at", conn);
+        using var cmd = new NpgsqlCommand("INSERT INTO persons (username, password_hash) VALUES (@username, @password_hash) RETURNING id, created_at", conn);
         cmd.Parameters.AddWithValue("username", username);
-        cmd.Parameters.AddWithValue("discord_id", (long)discord_id); // Cast to long for PostgreSQL compatibility
+        // cmd.Parameters.AddWithValue("discord_id", (long)discord_id); // Cast to long for PostgreSQL compatibility
         cmd.Parameters.AddWithValue("password_hash", password);
 
         using var reader = ExecuteCommand(cmd);
@@ -268,7 +308,7 @@ public class DatabaseController
             DateTime createdAt = reader.GetDateTime(1);
 
             conn.CloseAsync();
-            return new Person(personId, username, discord_id, createdAt);
+            return new Person(personId, username, 0, createdAt);
         }
         else
         {

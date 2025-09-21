@@ -7,7 +7,7 @@ public class AuthController : Controller
 {
     public class RegisterForm
     {
-        public ulong Discord_Id { get; set; }
+        // public ulong Discord_Id { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string? Invite_Code { get; set; }
@@ -26,14 +26,14 @@ public class AuthController : Controller
         {
             return BadRequest(new MessageResponse("Invalid invite code"));
         }
-        if (string.IsNullOrEmpty(form.Username) || string.IsNullOrEmpty(form.Password) || form.Discord_Id == 0)
+        if (string.IsNullOrEmpty(form.Username) || string.IsNullOrEmpty(form.Password))
         {
             return BadRequest(new MessageResponse("Missing parameters"));
         }
         else
         {
             // Return json
-            var result = DatabaseController.Instance.CreatePerson(form.Username, form.Discord_Id, form.Password);
+            var result = DatabaseController.Instance.CreatePerson(form.Username, form.Password);
             if (result != null)
             {
                 return Ok(JsonSerializer.Serialize(result));
@@ -95,8 +95,21 @@ public class AuthController : Controller
 
     [HttpPost("logout")]
     [Produces("application/json")]
-    public IActionResult Logout([FromForm] Guid? session_token)
+    public IActionResult Logout([FromForm] Guid? session_token, [FromForm] int? person_id)
     {
-        throw new NotImplementedException();
+        if (session_token.HasValue)
+        {
+            if (person_id.HasValue && person_id != 0)
+            {
+                if (DatabaseController.Instance.VerifySession(session_token.Value, person_id.Value))
+                {
+                    DatabaseController.Instance.DeleteSession(session_token.Value);
+                    // Verify the token
+                    return Ok(new MessageResponse("Logged out. Old session deleted."));
+                }
+            }
+            return BadRequest(new MessageResponse("Inconsistencies in request form."));
+        }
+        return Ok(new MessageResponse("Logged out."));
     }
 }
