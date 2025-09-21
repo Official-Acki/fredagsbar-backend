@@ -11,13 +11,17 @@ builder.Services.AddSwaggerGen(c =>
     c.MapType<int?>(() => new OpenApiSchema { Type = "integer", Nullable = true });
 });
 builder.Services.AddControllers();
-
+builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("http://localhost", "http://localhost:8081").AllowAnyHeader().AllowAnyMethod();
+            policy
+                .WithOrigins("http://localhost", "http://localhost:8081")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -41,6 +45,9 @@ app.MapControllers();
 
 // controller=Home, action=Index, id is optional (basically default controller is HomeController and default action inside controllers is Index)
 app.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Web sockets
+app.MapHub<LeaderboardHub>("/leaderboardHub");
 
 app.Run();
 
