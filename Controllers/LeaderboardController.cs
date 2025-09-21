@@ -20,4 +20,20 @@ public class LeaderboardController : Controller
         }
         return BadRequest(new MessageResponse("Invalid session."));
     }
+
+    // GET: /Leaderboard/get/
+    [HttpPost("get/today/")]
+    [HttpPost("get/today/{amount}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(List<DatabaseController.LeaderboardEntry>), 200, "application/json")]
+    [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
+    public IActionResult getToday([FromForm] StandardAuthorizedForm form, int amount = 10)
+    {
+        if (DatabaseController.Instance.VerifySession(form.guid))
+        {
+            var leaderboard = DatabaseController.Instance.GetLeaderboardEntriesToday(amount);
+            return Ok(JsonSerializer.Serialize(leaderboard));
+        }
+        return BadRequest(new MessageResponse("Invalid session."));
+    }
 }
