@@ -93,23 +93,32 @@ public class AuthController : Controller
         return BadRequest(new MessageResponse("Username or Password isn't provided."));
     }
 
+    public class LogoutForm
+    {
+        public Guid? guid { get; set; }
+        public int? Person_Id { get; set; }
+    }
+
     [HttpPost("logout")]
     [Produces("application/json")]
-    public IActionResult Logout([FromForm] Guid? session_token, [FromForm] int? person_id)
+    public IActionResult Logout([FromForm] LogoutForm form)
     {
-        if (session_token.HasValue)
+        Console.Write("Logout request! " + form.guid + " : " + form.Person_Id);
+        if (form.guid.HasValue)
         {
-            if (person_id.HasValue && person_id != 0)
+            if (form.Person_Id.HasValue && form.Person_Id != 0)
             {
-                if (DatabaseController.Instance.VerifySession(session_token.Value, person_id.Value))
+                if (DatabaseController.Instance.VerifySession(form.guid.Value, form.Person_Id.Value))
                 {
-                    DatabaseController.Instance.DeleteSession(session_token.Value);
+                    Console.Write(" Session verified with person id");
+                    DatabaseController.Instance.DeleteSession(form.guid.Value);
                     // Verify the token
                     return Ok(new MessageResponse("Logged out. Old session deleted."));
                 }
             }
             return BadRequest(new MessageResponse("Inconsistencies in request form."));
         }
+        Console.WriteLine();
         return Ok(new MessageResponse("Logged out."));
     }
 }

@@ -199,7 +199,7 @@ public class DatabaseController
         {
             int personId = reader.GetInt32(0);
             string username = reader.GetString(1);
-            UInt64 discordId = (UInt64)reader.GetInt64(2);
+            UInt64 discordId = !reader.IsDBNull(2) ? reader.GetFieldValue<UInt64>(2) : 0;
             DateTime createdAt = reader.GetDateTime(3);
 
             conn.CloseAsync();
@@ -225,7 +225,7 @@ public class DatabaseController
         {
             int id = reader.GetInt32(0);
             string personUsername = reader.GetString(1);
-            UInt64 discordId = (UInt64)reader.GetInt64(2);
+            UInt64 discordId = !reader.IsDBNull(2) ? reader.GetFieldValue<UInt64>(2) : 0;
             DateTime createdAt = reader.GetDateTime(3);
             conn.CloseAsync();
             return new Person(id, personUsername, discordId, createdAt);
@@ -251,7 +251,7 @@ public class DatabaseController
         {
             int id = reader.GetInt32(0);
             string username = reader.GetString(1);
-            UInt64 discordId = (UInt64)reader.GetInt64(2);
+            UInt64 discordId = !reader.IsDBNull(2) ? reader.GetFieldValue<UInt64>(2) : 0;
             DateTime createdAt = reader.GetDateTime(3);
             conn.CloseAsync();
             return new Person(id, username, discordId, createdAt);
