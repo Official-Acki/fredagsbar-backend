@@ -121,4 +121,18 @@ public class AuthController : Controller
         Console.WriteLine();
         return Ok(new MessageResponse("Logged out."));
     }
+
+    [HttpPost("whoami")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(Person), 200, "application/json")]
+    [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
+    public IActionResult WhoAmI([FromForm] StandardAuthorizedForm form)
+    {
+        Person? person = DatabaseController.Instance.GetPerson(form.guid);
+        if (person != null)
+        {
+            return Ok(JsonSerializer.Serialize(person));
+        }
+        return BadRequest(new MessageResponse("Invalid session."));
+    }
 }
