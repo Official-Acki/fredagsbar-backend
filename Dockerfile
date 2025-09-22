@@ -9,5 +9,13 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# ENTRYPOINT ["dotnet", "fredagsbar-backend.dll"]
-ENTRYPOINT [ "/bin/sh" ]
+ENV HTTP_PORTS=8080
+
+ENV DB_HOST=localhost,
+ENV DB_PORT=5432,
+ENV DB_USER=localhost,
+ENV DB_PASSWORD=localhost,
+ENV DB_NAME=fredagsbar-backend,
+ENV INVITE_CODE=1234
+
+ENTRYPOINT [ "./fredagsbar-backend" ]

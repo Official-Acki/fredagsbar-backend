@@ -49,6 +49,9 @@ app.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id
 // Web sockets
 app.MapHub<LeaderboardHub>("/leaderboardHub");
 
+
+app.Logger.LogInformation("Starting with invite code: " + Environment.GetEnvironmentVariable("INVITE_CODE"));
+
 app.Run();
 
 // record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
