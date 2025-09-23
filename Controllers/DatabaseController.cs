@@ -442,6 +442,140 @@ public class DatabaseController
 
     #endregion
 
+    #region Cases Handling
+
+    #region Owing
+
+    // Create
+
+    public float AddCasesToPerson(int person_id, float amount = 1)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        float debt = this.GetOwedCases(person_id);
+
+        using var cmd = new NpgsqlCommand(@"
+            INSERT INTO cases_owed (person_id, cases, updated_at)
+            VALUES (@person_id, @cases, CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+            ON CONFLICT (person_id)
+            DO UPDATE SET 
+                cases = EXCLUDED.cases,
+                updated_at = CURRENT_TIMESTAMP AT TIME ZONE 'UTC';
+        ", conn);
+        cmd.Parameters.AddWithValue("cases", debt + amount);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return -1; // Query failed
+        conn.CloseAsync();
+        return debt + amount;
+
+    }
+
+    // Read
+    public float GetTotalOwedCases()
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT SUM(cases_owed.cases)+SUM(cases_given.cases) FROM cases_owed LEFT JOIN cases_given ON cases_owed.person_id = cases_given.person_id", conn);
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return 0; // Query failed
+        if (reader.Read())
+        {
+            float cases = reader.GetFloat(0);
+            conn.CloseAsync();
+            return cases;
+        }
+        return 0;
+    }
+
+
+    public float GetOwedCases(int person_id)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT cases FROM cases_owed WHERE person_id = @person_id", conn);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return 0; // Query failed
+        if (reader.Read())
+        {
+            float cases = reader.GetFloat(0);
+            conn.CloseAsync();
+            return cases;
+        }
+        return 0;
+    }
+
+    public float GetOwedCases(Guid session_token)
+    {
+        Person? person = this.GetPerson(session_token);
+        if (person == null) return 0;
+        return GetOwedCases(person.id);
+    }
+
+    public float GetGivenCases(int person_id)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM cases_given WHERE person_id = @person_id", conn);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return 0; // Query failed
+        if (reader.Read())
+        {
+            float cases = reader.GetFloat(0);
+            conn.CloseAsync();
+            return cases;
+        }
+        return 0;
+    }
+
+    public float GetGivenCases(Guid session_token)
+    {
+        Person? person = this.GetPerson(session_token);
+        if (person == null) return 0;
+        return GetGivenCases(person.id);
+    }
+
+    // Update
+
+    public float DeductCasesFromPerson(int person_id, float amount = 1)
+    {
+        using var conn = new NpgsqlConnection(this.connectionString);
+        conn.Open();
+
+        float debt = GetOwedCases(person_id);
+
+        if (debt == -1) return -1; // Person has no debt
+
+        float newDebt = debt - amount;
+        if (newDebt < 0) newDebt = 0;
+
+        using var cmd = new NpgsqlCommand("UPDATE cases_owed SET cases = @cases, updated_at = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') WHERE person_id = @person_id", conn);
+        cmd.Parameters.AddWithValue("cases", newDebt);
+        cmd.Parameters.AddWithValue("person_id", person_id);
+
+        using var reader = ExecuteCommand(cmd);
+        if (reader == null) return -1; // Query failed
+        conn.CloseAsync();
+        return newDebt;
+    }
+
+    #endregion
+
+    #region Given
+
+    #endregion
+
+    #endregion
+
     #region Leaderboard
 
     public class LeaderboardEntry
