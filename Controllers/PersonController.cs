@@ -15,30 +15,31 @@ public class PersonController : Controller
     // }
     // 
     // GET: /Person/get/ 
-    [HttpGet("get/{id?}")]
-    public string get(string? id)
+    [HttpPost("get/{id?}")]
+    [Produces("application/json")]
+    [VerifySession]
+    public async Task<IActionResult> Get([FromForm] StandardAuthorizedForm form, int? id)
     {
         // It has an id parameter
-        if (string.IsNullOrEmpty(id))
+        if (id == null)
         {
-            return "No id provided";
+            return BadRequest("No id provided");
         }
         else
         {
-            bool parsed = int.TryParse(id, out int parsedId);
-            if (!parsed || parsedId <= 0)
+            if (id <= 0)
             {
-                return "Invalid id provided";
+                return BadRequest("Invalid id provided");
             }
             // Return json
-            var person = DatabaseController.Instance.GetPerson(int.Parse(id));
+            var person = await Person.ReadObj(id.Value);
             if (person == null)
             {
-                return "No person found with id " + id;
+                return NotFound("No person found with id " + id);
             }
             else
             {
-                return System.Text.Json.JsonSerializer.Serialize(person);
+                return Ok(System.Text.Json.JsonSerializer.Serialize(person));
             }
         }
     }
