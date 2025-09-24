@@ -15,9 +15,9 @@ public class LeaderboardController : Controller
     [ProducesResponseType(typeof(Leaderboard), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
     [VerifySession]
-    public IActionResult get([FromForm] StandardAuthorizedForm form, int amount = 10)
+    public async Task<IActionResult> get([FromForm] StandardAuthorizedForm form, int amount = 10)
     {
-        var leaderboard = Leaderboard.BeersDrankLeaderboard(amount);
+        var leaderboard = await Leaderboard.BeersDrankLeaderboard(amount);
         return Ok(JsonSerializer.Serialize(leaderboard));
     }
 
@@ -28,9 +28,9 @@ public class LeaderboardController : Controller
     [ProducesResponseType(typeof(Leaderboard), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
     [VerifySession]
-    public IActionResult getToday([FromForm] StandardAuthorizedForm form, int amount = 10)
+    public async Task<IActionResult> getToday([FromForm] StandardAuthorizedForm form, int amount = 10)
     {
-        var leaderboard = Leaderboard.BeersDrankLeaderboard(DateTime.UtcNow, amount);
+        var leaderboard = await Leaderboard.BeersDrankLeaderboard(DateTime.UtcNow, amount);
         return Ok(JsonSerializer.Serialize(leaderboard));
     }
 }
