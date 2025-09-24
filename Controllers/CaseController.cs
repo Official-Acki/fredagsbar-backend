@@ -9,55 +9,46 @@ public class CasesController : Controller
     [HttpPost("owed")]
 
     [HttpPost("owed/total")]
+    [VerifySession]
     public IActionResult GetTotalOwedCases([FromForm] StandardAuthorizedForm form)
     {
-        if (DatabaseController.Instance.VerifySession(form.guid))
-        {
-            float cases = DatabaseController.Instance.GetTotalOwedCases();
-            return Ok(cases);
-        }
-        return BadRequest();
+        return Ok(CasesOwed.GetTotalOwedCases());
     }
 
     [HttpPost("given/total")]
+    [VerifySession]
     public IActionResult GetTotalGivenCases([FromForm] StandardAuthorizedForm form)
     {
-        return Ok();
+        return Ok(CasesGiven.GetTotalGivenCases());
     }
 
     [HttpPost("owed/self")]
-    public IActionResult GetOwedCasesSelf([FromForm] StandardAuthorizedForm form)
+    [VerifySession]
+    public async Task<IActionResult> GetOwedCasesSelf([FromForm] StandardAuthorizedForm form)
     {
-        if (DatabaseController.Instance.VerifySession(form.guid))
-        {
-            float cases = DatabaseController.Instance.GetOwedCases(form.guid);
-            return Ok(cases);
-        }
-        return BadRequest();
+        var person = await Person.ReadObj(form.guid);
+        float cases = await CasesOwed.GetTotalOwedCases(person!.id);
+        return Ok(cases);
     }
 
 
     [HttpPost("owed/total/self")]
-    public IActionResult GetTotalOwedCasesSelf([FromForm] StandardAuthorizedForm form)
+    [VerifySession]
+    public async Task<IActionResult> GetTotalOwedCasesSelf([FromForm] StandardAuthorizedForm form)
     {
-        if (DatabaseController.Instance.VerifySession(form.guid))
-        {
-            float cases = DatabaseController.Instance.GetOwedCases(form.guid);
-            cases += DatabaseController.Instance.GetGivenCases(form.guid);
-            return Ok(cases);
-        }
-        return BadRequest();
+        var person = await Person.ReadObj(form.guid);
+        float cases = await CasesOwed.GetTotalOwedCases(person!.id);
+        cases += await CasesGiven.GetTotalGivenCases(person.id);
+        return Ok(cases);
     }
 
     [HttpPost("given/total/self")]
-    public IActionResult GetTotalGivenCasesSelf([FromForm] StandardAuthorizedForm form)
+    [VerifySession]
+    public async Task<IActionResult> GetTotalGivenCasesSelf([FromForm] StandardAuthorizedForm form)
     {
-        if (DatabaseController.Instance.VerifySession(form.guid))
-        {
-            float cases = DatabaseController.Instance.GetGivenCases(form.guid);
-            return Ok(cases);
-        }
-        return BadRequest();
+        var person = await Person.ReadObj(form.guid);
+        float cases = await CasesGiven.GetTotalGivenCases(person!.id);
+        return Ok(cases);
     }
 
 }

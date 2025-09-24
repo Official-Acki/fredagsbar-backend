@@ -12,32 +12,26 @@ public class LeaderboardController : Controller
     [HttpPost("get/")]
     [HttpPost("get/{amount}")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(List<DatabaseController.LeaderboardEntry>), 200, "application/json")]
+    [ProducesResponseType(typeof(Leaderboard), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
+    [VerifySession]
     public IActionResult get([FromForm] StandardAuthorizedForm form, int amount = 10)
     {
-        if (DatabaseController.Instance.VerifySession(form.guid))
-        {
-            var leaderboard = DatabaseController.Instance.GetLeaderboardEntries(amount);
-            return Ok(JsonSerializer.Serialize(leaderboard));
-        }
-        return BadRequest(new MessageResponse("Invalid session."));
+        var leaderboard = Leaderboard.BeersDrankLeaderboard(amount);
+        return Ok(JsonSerializer.Serialize(leaderboard));
     }
 
     // GET: /Leaderboard/get/
     [HttpPost("get/today/")]
     [HttpPost("get/today/{amount}")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(List<DatabaseController.LeaderboardEntry>), 200, "application/json")]
+    [ProducesResponseType(typeof(Leaderboard), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
+    [VerifySession]
     public IActionResult getToday([FromForm] StandardAuthorizedForm form, int amount = 10)
     {
-        if (DatabaseController.Instance.VerifySession(form.guid))
-        {
-            var leaderboard = DatabaseController.Instance.GetLeaderboardEntriesToday(amount);
-            return Ok(JsonSerializer.Serialize(leaderboard));
-        }
-        return BadRequest(new MessageResponse("Invalid session."));
+        var leaderboard = Leaderboard.BeersDrankLeaderboard(DateTime.UtcNow, amount);
+        return Ok(JsonSerializer.Serialize(leaderboard));
     }
 }
 
@@ -48,10 +42,15 @@ public class LeaderboardHub : Hub
     {
         Console.WriteLine("LeaderboardHub: OnConnectedAsync called");
         var httpContext = Context.GetHttpContext();
+        if (httpContext == null)
+        {
+            Console.WriteLine("No HTTP context available. Connection aborted.");
+            Context.Abort();
+            return;
+        }
         var sessionToken = httpContext.Request.Query["session_token"].ToString();
         Console.WriteLine($"Session token: {sessionToken}");
-
-        if (!Guid.TryParse(sessionToken, out var sessionGuid) || !DatabaseController.Instance.VerifySession(sessionGuid))
+        if (!Guid.TryParse(sessionToken, out var sessionGuid) || !await new Session(sessionGuid).VerifySession())
         {
             Console.WriteLine("Invalid session token. Connection aborted.");
             // Reject the connection
@@ -62,7 +61,7 @@ public class LeaderboardHub : Hub
         await base.OnConnectedAsync();
     }
 
-    public async Task SendLeaderboard(List<DatabaseController.LeaderboardEntry> leaderboard)
+    public async Task SendLeaderboard(Leaderboard leaderboard)
     {
         await Clients.All.SendAsync("ReceiveLeaderboard", leaderboard);
     }

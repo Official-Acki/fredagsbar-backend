@@ -10,14 +10,14 @@ public class AuthController : Controller
         // public ulong Discord_Id { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public string? Invite_Code { get; set; }
+        public string Invite_Code { get; set; } = string.Empty;
     }
 
     [HttpPost("register")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Person), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
-    public IActionResult Register([FromForm] RegisterForm form)
+    public async Task<IActionResult> Register([FromForm] RegisterForm form)
     {
         Console.WriteLine(form.Invite_Code);
         Console.WriteLine(Environment.GetEnvironmentVariable("INVITE_CODE"));
@@ -33,7 +33,7 @@ public class AuthController : Controller
         else
         {
             // Return json
-            var result = DatabaseController.Instance.CreatePerson(form.Username, form.Password);
+            var result = await Person.CreateObj(form.Username, form.Password);
             if (result != null)
             {
                 return Ok(JsonSerializer.Serialize(result));
@@ -57,19 +57,19 @@ public class AuthController : Controller
     [Produces("application/json")]
     [ProducesResponseType(typeof(Session), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
-    public IActionResult Login([FromForm] LoginForm form)
+    public async Task<IActionResult> Login([FromForm] LoginForm form)
     {
         if (!String.IsNullOrEmpty(form.Username) && !String.IsNullOrEmpty(form.Password))
         {
-            Person? person = DatabaseController.Instance.GetPerson(form.Username);
+            Person? person = await Person.ReadObj(form.Username);
             if (person != null)
             {
-                bool password_match = BCrypt.Net.BCrypt.Verify(form.Password, DatabaseController.Instance.GetPasswordHash(person));
+                bool password_match = BCrypt.Net.BCrypt.Verify(form.Password, await Person.GetPasswordHash(person.id));
 
                 if (password_match)
                 {
                     // Create session and send session token back with expiry date
-                    Session? session = DatabaseController.Instance.CreateSession(person);
+                    Session? session = await Session.CreateObj(person);
                     if (session == null) return StatusCode(500);
                     return Ok(JsonSerializer.Serialize(session));
                 }
@@ -78,11 +78,11 @@ public class AuthController : Controller
         }
         else if (form.Session_Token != null)
         {
-            bool valid = DatabaseController.Instance.VerifySession(form.Session_Token.Value);
+            Session? session = new Session(form.Session_Token.Value);
+            bool valid = await session.VerifySession();
             if (valid)
             {
-                Session? session = DatabaseController.Instance.RenewSession(form.Session_Token.Value);
-
+                session = await session.Renew();
                 return Ok(JsonSerializer.Serialize(session));
             }
             else
@@ -101,17 +101,18 @@ public class AuthController : Controller
 
     [HttpPost("logout")]
     [Produces("application/json")]
-    public IActionResult Logout([FromForm] LogoutForm form)
+    public async Task<IActionResult> Logout([FromForm] LogoutForm form)
     {
         Console.Write("Logout request! " + form.guid + " : " + form.Person_Id);
         if (form.guid.HasValue)
         {
             if (form.Person_Id.HasValue && form.Person_Id != 0)
             {
-                if (DatabaseController.Instance.VerifySession(form.guid.Value, form.Person_Id.Value))
+                Session? session = new Session(form.guid.Value);
+                if (await session.VerifySession(form.Person_Id.Value))
                 {
                     Console.Write(" Session verified with person id");
-                    DatabaseController.Instance.DeleteSession(form.guid.Value);
+                    await session.Delete();
                     // Verify the token
                     return Ok(new MessageResponse("Logged out. Old session deleted."));
                 }
@@ -126,9 +127,9 @@ public class AuthController : Controller
     [Produces("application/json")]
     [ProducesResponseType(typeof(Person), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
-    public IActionResult WhoAmI([FromForm] StandardAuthorizedForm form)
+    public async Task<IActionResult> WhoAmI([FromForm] StandardAuthorizedForm form)
     {
-        Person? person = DatabaseController.Instance.GetPerson(form.guid);
+        Person? person = await Person.ReadObj(form.guid);
         if (person != null)
         {
             return Ok(JsonSerializer.Serialize(person));
