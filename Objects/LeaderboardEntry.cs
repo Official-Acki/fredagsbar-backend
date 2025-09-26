@@ -15,7 +15,7 @@ public class Leaderboard
         this.entries = entries;
     }
 
-    public static async Task<Leaderboard?> BeersDrankLeaderboard(int amount = 5)
+    public static async Task<Leaderboard?> BeersDrankLeaderboard(int amount = 20)
     {
         var entries = (await DatabaseController.Instance.db.QueryAsync<Person, long, LeaderboardEntry>(
             "SELECT persons.id, persons.username, persons.discord_id, persons.created_at, COUNT(beers_drank) AS beers_drank " +
@@ -32,7 +32,7 @@ public class Leaderboard
         return new Leaderboard(entries);
     }
     
-    public static async Task<Leaderboard?> BeersDrankLeaderboard(DateTime date, int amount = 5)
+    public static async Task<Leaderboard?> BeersDrankLeaderboard(DateTime date, int amount = 20)
     {
         var entries = (await DatabaseController.Instance.db.QueryAsync<Person, long, LeaderboardEntry>(
             "SELECT persons.id, persons.username, persons.discord_id, persons.created_at, COUNT(beers_drank) AS beers_drank " +

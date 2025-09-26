@@ -1,8 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 [ApiController]
 [Route("v1/[controller]")]
@@ -15,10 +13,13 @@ public class LeaderboardController : Controller
     [ProducesResponseType(typeof(Leaderboard), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
     [VerifySession]
-    public async Task<IActionResult> get([FromForm] StandardAuthorizedForm form, int amount = 10)
+    public async Task<IActionResult> get([FromForm] StandardAuthorizedForm form, int amount = 0)
     {
-        var leaderboard = await Leaderboard.BeersDrankLeaderboard(amount);
-        return Ok(JsonSerializer.Serialize(leaderboard));
+        if (amount <= 0)
+        {
+            return Ok(JsonSerializer.Serialize(await Leaderboard.BeersDrankLeaderboard()));
+        }
+        return Ok(JsonSerializer.Serialize(await Leaderboard.BeersDrankLeaderboard(amount)));
     }
 
     // GET: /Leaderboard/get/
@@ -28,10 +29,13 @@ public class LeaderboardController : Controller
     [ProducesResponseType(typeof(Leaderboard), 200, "application/json")]
     [ProducesResponseType(typeof(MessageResponse), 400, "application/json")]
     [VerifySession]
-    public async Task<IActionResult> getToday([FromForm] StandardAuthorizedForm form, int amount = 10)
+    public async Task<IActionResult> getToday([FromForm] StandardAuthorizedForm form, int amount = 0)
     {
-        var leaderboard = await Leaderboard.BeersDrankLeaderboard(DateTime.UtcNow, amount);
-        return Ok(JsonSerializer.Serialize(leaderboard));
+        if (amount <= 0)
+        {
+            return Ok(JsonSerializer.Serialize(await Leaderboard.BeersDrankLeaderboard(DateTime.UtcNow)));
+        }
+        return Ok(JsonSerializer.Serialize(await Leaderboard.BeersDrankLeaderboard(DateTime.UtcNow, amount)));
     }
 }
 
