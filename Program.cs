@@ -49,6 +49,14 @@ app.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id
 // Web sockets
 app.MapHub<LeaderboardHub>("/leaderboardHub");
 
+app.Logger.LogInformation("Running migrations (if any)...");
+
+int migrations = DatabaseController.Instance.ApplyMigrations();
+
+app.Logger.LogInformation("Migrations complete: " + migrations);
+app.Logger.LogInformation("Running initial sql");
+
+DatabaseController.Instance.RunInitialSql();
 
 app.Logger.LogInformation("Starting with invite code: " + Environment.GetEnvironmentVariable("INVITE_CODE"));
 

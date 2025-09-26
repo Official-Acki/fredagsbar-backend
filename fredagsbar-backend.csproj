@@ -13,4 +13,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
     <PackageReference Include="Npgsql" Version="8.0.7" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Include all files in the sql directory -->
+    <Content Include="sql\**\*" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

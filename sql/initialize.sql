@@ -1,3 +1,5 @@
+BEGIN;
+
 CREATE TABLE IF NOT EXISTS persons (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -35,20 +37,4 @@ CREATE TABLE IF NOT EXISTS beers_drank (
     PRIMARY KEY (person_id, drank_at)
 );
 
-
-
--- Placeholders
-INSERT INTO persons (username, discord_id, password_hash) VALUES
-('alice', 123456789012345678, 'hashed_password_1'),
-('bob', 234567890123456789, 'hashed_password_2'),
-('charlie', 345678901234567890, 'hashed_password_3')
-ON CONFLICT (username) DO NOTHING;
-
-/*
-IF YOU NEED TO RESET THE DATABASE, UNCOMMENT THE FOLLOWING LINES:
-DROP TABLE IF EXISTS persons CASCADE;
-DROP TABLE IF EXISTS user_sessions CASCADE;
-DROP TABLE IF EXISTS cases_owed CASCADE;
-DROP TABLE IF EXISTS cases_given CASCADE;
-DROP TABLE IF EXISTS beers_drank CASCADE;
-*/
+COMMIT;

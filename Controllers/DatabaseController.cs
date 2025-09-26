@@ -2,6 +2,7 @@ using Npgsql;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using Dapper;
 
 public class DatabaseController
 {
@@ -28,4 +29,46 @@ public class DatabaseController
         this.ConnectionString = builder.ConnectionString;
     }
 
+    public bool TestConnection()
+    {
+        try
+        {
+            using (var connection = db)
+            {
+                connection.Open();
+                return connection.State == ConnectionState.Open;
+            }
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    internal int ApplyMigrations()
+    {
+        while(TestConnection() == false)
+        {
+            // Wait for the db to be ready
+            System.Threading.Thread.Sleep(5000);
+        }
+        string[] files = Directory.GetFiles("sql/migrations/");
+        foreach (string filePath in files)
+        {
+            string file = File.ReadAllText(filePath);
+            db.Query(file);
+        }
+        return files.Length;
+    }
+
+    internal void RunInitialSql()
+    {
+        while(TestConnection() == false)
+        {
+            // Wait for the db to be ready
+            System.Threading.Thread.Sleep(1000);
+        }
+        string initialSql = File.ReadAllText("sql/initialize.sql");
+        db.Query(initialSql);
+    }
 }
