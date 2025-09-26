@@ -11,11 +11,11 @@ COPY --from=build /app/publish .
 
 ENV HTTP_PORTS=8080
 
-ENV DB_HOST=localhost,
-ENV DB_PORT=5432,
-ENV DB_USER=localhost,
-ENV DB_PASSWORD=localhost,
-ENV DB_NAME=fredagsbar-backend,
+ENV DB_HOST=localhost
+ENV DB_PORT=5432
+ENV DB_USER=localhost
+ENV DB_PASSWORD=localhost
+ENV DB_NAME=fredagsbar-backend
 ENV INVITE_CODE=1234
 
 ENTRYPOINT [ "./fredagsbar-backend" ]
