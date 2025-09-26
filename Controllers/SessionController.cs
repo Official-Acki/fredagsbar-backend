@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("v1/[controller]")]
 public class SessionController : Controller
 {
     [HttpPost("verify")]

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("v1/[controller]")]
 public class BeersController : Controller
 {
     private readonly IHubContext<LeaderboardHub> _hubContext;

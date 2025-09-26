@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("v1/[controller]")]
 public class LeaderboardController : Controller
 {
     // GET: /Leaderboard/get/
