@@ -37,4 +37,19 @@ CREATE TABLE IF NOT EXISTS beers_drank (
     PRIMARY KEY (person_id, drank_at)
 );
 
+CREATE TABLE IF NOT EXISTS events (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE,
+    description TEXT DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS event_times (
+    event_id INT REFERENCES events(id) ON DELETE CASCADE,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    repeat_interval INTERVAL DEFAULT NULL,
+    PRIMARY KEY (event_id, start_time)
+);
+
+
 COMMIT;
