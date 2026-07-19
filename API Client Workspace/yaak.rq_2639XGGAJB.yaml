@@ -1,0 +1,33 @@
+type: http_request
+model: http_request
+id: rq_2639XGGAJB
+createdAt: 2026-07-11T23:02:56.101972300
+updatedAt: 2026-07-11T23:06:08.361429200
+workspaceId: wk_WrnpJ23d2Q
+folderId: fl_EJpxqWrDrw
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: ''
+sortPriority: 0.0
+url: ${[ HOST ]}/ping
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

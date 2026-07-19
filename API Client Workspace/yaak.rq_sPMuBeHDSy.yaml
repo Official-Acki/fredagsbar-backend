@@ -1,0 +1,37 @@
+type: http_request
+model: http_request
+id: rq_sPMuBeHDSy
+createdAt: 2026-07-12T23:34:53.495141400
+updatedAt: 2026-07-12T23:59:34.676544
+workspaceId: wk_WrnpJ23d2Q
+folderId: fl_RhZpkLEpKS
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: HOST/users/{id}
+sortPriority: 333.3333333333333
+url: ${[ HOST ]}/users/313689155638919168
+urlParameters:
+- enabled: true
+  name: ''
+  value: ''
+  id: 4CS6zDJGax
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

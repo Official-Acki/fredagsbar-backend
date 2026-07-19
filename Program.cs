@@ -1,45 +1,68 @@
-using Microsoft.OpenApi.Models;
+using fredagsbar_backend.Database;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var config = builder.Configuration;
+
+// Singletons
+builder.Services.AddSingleton<InternalOnlyFilter>();
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    // Tells swagger gen that a nullable int is optional
-    c.MapType<int?>(() => new OpenApiSchema { Type = "integer", Nullable = true });
-});
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
-builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-        policy =>
-        {
-            policy
-                .SetIsOriginAllowed(_ => true)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
+	options.AddDefaultPolicy(
+		policy =>
+		{
+			policy
+				.SetIsOriginAllowed(_ => true)
+				.AllowAnyHeader()
+				.AllowAnyMethod()
+				.AllowCredentials();
+		});
 });
-
+builder.Services.AddDbContextPool<ApplicationDbContext>(opt =>
+{
+	if (builder.Environment.IsDevelopment())
+	{
+		opt.UseInMemoryDatabase("LocalDev");
+	} else {
+		opt.UseNpgsql(
+			new NpgsqlConnectionStringBuilder
+			{
+				Host = config["DB:Host"] ?? throw new InvalidOperationException("DB:Host not configured"),
+				Port = Convert.ToInt32(config["DB:Port"] ?? throw new InvalidOperationException("DB:Port not configured")),
+				Username = config["DB:User"] ?? throw new InvalidOperationException("DB:User not configured"),
+				Password = config["DB:Password"] ?? throw new InvalidOperationException("DB:Password not configured"),
+				Database = config["DB:Name"] ?? throw new InvalidOperationException("DB:Name not configured"),
+			}.ConnectionString,
+			o => o
+				.SetPostgresVersion(18, 0)
+				// .MapEnum<Mood>("mood")
+		);
+	}
+});
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSignalR();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment()) {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    //    app.MapOpenApi(); // Removed as it is not a valid method for WebApplication (was from dotnet 9)
+if (app.Environment.IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI();
+	//    app.MapOpenApi(); // Removed as it is not a valid method for WebApplication (was from dotnet 9)
 }
 
 app.UseCors();
 
 app.UseHttpsRedirection();
-
-app.MapGet("/ping", () => "pong").WithName("Ping");
 
 app.MapControllers();
 
@@ -47,22 +70,12 @@ app.MapControllers();
 app.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Web sockets
-app.MapHub<LeaderboardHub>("/leaderboardHub");
-
-app.Logger.LogInformation("Running migrations (if any)...");
-
-int migrations = DatabaseController.Instance.ApplyMigrations();
-
-app.Logger.LogInformation("Migrations complete: " + migrations);
-app.Logger.LogInformation("Running initial sql");
-
-DatabaseController.Instance.RunInitialSql();
-
-app.Logger.LogInformation("Starting with invite code: " + Environment.GetEnvironmentVariable("INVITE_CODE"));
+// app.MapHub<LeaderboardHub>("/leaderboardHub");
+if (!app.Environment.IsDevelopment())
+{
+	app.Logger.LogInformation("Running migrations (if any)...");
+	await app.Services.MigrateAsync(app.Environment);
+	app.Logger.LogInformation("Migrations complete");
+}
 
 app.Run();
-
-// record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-// {
-//     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-// }

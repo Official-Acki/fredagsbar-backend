@@ -1,0 +1,45 @@
+type: http_request
+model: http_request
+id: rq_FpKMXPvSLX
+createdAt: 2026-07-12T23:29:34.162349300
+updatedAt: 2026-07-12T23:59:44.149725700
+workspaceId: wk_WrnpJ23d2Q
+folderId: fl_RhZpkLEpKS
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: HOST/users?ids=
+sortPriority: 1000.0
+url: ${[ HOST ]}/users
+urlParameters:
+- enabled: true
+  name: ids
+  value: '313689155638919168'
+  id: faHZ4nfHQ7
+- enabled: true
+  name: ids
+  value: '313689155638919169'
+  id: KFdDvBXhQy
+- enabled: true
+  name: ''
+  value: ''
+  id: W3efH8JBcF
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

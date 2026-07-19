@@ -1,0 +1,43 @@
+type: http_request
+model: http_request
+id: rq_JhDVEKothG
+createdAt: 2026-07-11T23:06:11.545012500
+updatedAt: 2026-07-11T23:50:26.140689800
+workspaceId: wk_WrnpJ23d2Q
+folderId: fl_EJpxqWrDrw
+authentication:
+  key: X-Internal-Key
+  value: ${[ INTERNAL_KEY ]}
+authenticationType: apikey
+body: {}
+bodyType: null
+description: ''
+headers:
+- enabled: true
+  name: X-Internal-Key
+  value: ${[ INTERNAL_KEY ]}
+  id: 3M7ikREIHv
+- enabled: true
+  name: ''
+  value: ''
+  id: YeBP0WWdJR
+method: GET
+name: ''
+sortPriority: 0.0
+url: ${[ HOST ]}/ping/bot
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

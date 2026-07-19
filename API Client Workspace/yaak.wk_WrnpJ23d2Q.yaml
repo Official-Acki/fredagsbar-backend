@@ -1,0 +1,17 @@
+type: workspace
+model: workspace
+id: wk_WrnpJ23d2Q
+createdAt: 2026-07-11T23:02:39.343554500
+updatedAt: 2026-07-11T23:02:39.343557700
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: Backend
+encryptionKeyChallenge: null
+settingValidateCertificates: true
+settingFollowRedirects: true
+settingRequestTimeout: 0
+settingDnsOverrides: []
+settingSendCookies: true
+settingStoreCookies: true
