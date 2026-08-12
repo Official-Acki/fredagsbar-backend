@@ -8,4 +8,9 @@ public class BaseController(IMapper mapper, ApplicationDbContext dbContext) : Co
 {
 	protected readonly IMapper _mapper = mapper;
 	protected readonly ApplicationDbContext _dbContext = dbContext;
+
+	public class ContentTypes
+	{
+		public const string JSON = "application/json";
+	}
 }

@@ -8,10 +8,31 @@ using Models;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    public DbSet<User> Users { get; set; }
+	public DbSet<BeerCaseTransaction> BeerCaseTransactions { get; set; }
+	public DbSet<User> Users { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
+		// BeerCaseTransactions
+		modelBuilder.Entity<BeerCaseTransaction>()
+			.HasKey(e => e.ID);
+
+		modelBuilder.Entity<BeerCaseTransaction>()
+			.HasIndex(e => e.UserID);
+		modelBuilder.Entity<BeerCaseTransaction>()
+			.HasIndex(e => e.Time);
+		modelBuilder.Entity<BeerCaseTransaction>()
+			.HasIndex(e => new { e.UserID, e.Time });
+
+		modelBuilder.Entity<BeerCaseTransaction>()
+			.HasOne(e => e.User)
+			.WithMany(e => e.BeerCaseTransactions)
+			.HasForeignKey(e => e.UserID);
+
+		modelBuilder.Entity<BeerCaseTransaction>()
+			.Property(e => e.Time)
+			.HasDefaultValueSql("now()");
+
 		// User
 		modelBuilder.Entity<User>()
 			.HasIndex(e => e.Username)
@@ -21,33 +42,37 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 	// Timestamps
 	public override int SaveChanges()
-    {
-        AddTimestamps();
-        return base.SaveChanges();
-    }
+	{
+		AddTimestamps();
+		return base.SaveChanges();
+	}
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        AddTimestamps();
-        return await base.SaveChangesAsync(cancellationToken);
-    }
+	public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+	{
+		AddTimestamps();
+		return await base.SaveChangesAsync(cancellationToken);
+	}
 
-    private void AddTimestamps()
-    {
-        var entities = ChangeTracker.Entries()
-            .Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
+	private void AddTimestamps()
+	{
+		var entries = ChangeTracker.Entries()
+			.Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
 
-        foreach (var entity in entities)
-        {
-            var now = DateTime.UtcNow; // current datetime
+		foreach (var entry in entries)
+		{
+			var now = DateTime.Now; // current datetime
 
-            if (entity.State == EntityState.Added)
-            {
-                ((BaseEntity)entity.Entity).CreatedAt = now;
-            }
-            ((BaseEntity)entity.Entity).UpdatedAt = now;
-        }
-    }
+			if (entry.State == EntityState.Added)
+			{
+				((BaseEntity)entry.Entity).CreatedAt = now;
+			}
+			((BaseEntity)entry.Entity).UpdatedAt = now;
+
+			// Special cases
+			if (entry.Entity is BeerCaseTransaction transaction && transaction.Time == default)
+				transaction.Time = DateTime.Now;
+		}
+	}
 
 }
 
