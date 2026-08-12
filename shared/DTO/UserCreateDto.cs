@@ -1,4 +1,4 @@
-namespace fredagsbar_backend.Database.DTO;
+namespace Fredagsbar.Shared.DTO;
 
 public class UserCreateDto
 {

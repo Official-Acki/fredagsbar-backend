@@ -1,4 +1,4 @@
-using fredagsbar_backend.Database;
+using Fredagsbar.Backend.Database;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 

@@ -1,12 +1,12 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using fredagsbar_backend.Database;
-using fredagsbar_backend.Database.DTO;
-using fredagsbar_backend.Database.Models;
+using Fredagsbar.Shared.DTO;
+using Fredagsbar.Backend.Database;
+using Fredagsbar.Backend.Database.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace fredagsbar_backend.Controllers;
+namespace Fredagsbar.Backend.Controllers;
 
 [ApiController]
 [Route("users")]

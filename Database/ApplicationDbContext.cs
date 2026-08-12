@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-namespace fredagsbar_backend.Database;
+namespace Fredagsbar.Backend.Database;
 
 using Models;
 

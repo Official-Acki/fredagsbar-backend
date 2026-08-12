@@ -1,8 +1,8 @@
 using AutoMapper;
 
-namespace fredagsbar_backend.Database;
+namespace Fredagsbar.Backend.Database;
 
-using fredagsbar_backend.Database.DTO;
+using Fredagsbar.Shared.DTO;
 using Models;
 
 public class MappingProfile : Profile

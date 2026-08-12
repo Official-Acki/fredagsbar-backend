@@ -1,9 +1,9 @@
 using AutoMapper;
-using fredagsbar_backend.Database;
+using Fredagsbar.Backend.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace fredagsbar_backend.Controllers;
+namespace Fredagsbar.Backend.Controllers;
 
 [ApiController]
 [Route("transactions")]

@@ -2,3 +2,6 @@
 bin/
 obj/
 .env
+
+# Shared
+local-nuget-feed/

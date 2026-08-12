@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace fredagsbar_backend.Database.Models;
+namespace Fredagsbar.Backend.Database.Models;
 
 public class User : BaseEntity
 {

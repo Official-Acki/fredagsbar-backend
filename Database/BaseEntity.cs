@@ -1,4 +1,4 @@
-namespace fredagsbar_backend.Database;
+namespace Fredagsbar.Backend.Database;
 
 public abstract class BaseEntity
 {

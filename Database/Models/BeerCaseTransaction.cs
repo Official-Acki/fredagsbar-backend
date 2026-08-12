@@ -1,4 +1,4 @@
-namespace fredagsbar_backend.Database.Models;
+namespace Fredagsbar.Backend.Database.Models;
 
 public class BeerCaseTransaction : BaseEntity
 {
