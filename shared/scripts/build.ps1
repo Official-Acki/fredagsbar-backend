@@ -11,4 +11,4 @@ if ($decision -eq 1) {
 
 dotnet build -c Release
 
-cp bin/Release/Fredagsbar.Shared.0.0.1.nupkg ../local-nuget-feed
+cp bin/Release/Fredagsbar.Shared.*.nupkg ../local-nuget-feed

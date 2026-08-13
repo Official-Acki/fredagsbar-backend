@@ -45,6 +45,24 @@ public class UserController(IMapper mapper, ApplicationDbContext dbContext) : Ba
 		return Ok(users);
 	}
 
+	[HttpGet("{id}/summary")]
+	[ProducesResponseType<UserSummaryDto>(StatusCodes.Status200OK, ContentTypes.JSON)]
+	public async Task<IActionResult> GetSummaryById(ulong id)
+	{
+		var summary = await _dbContext.Users
+			.Where(u => u.ID == id)
+			.Include(u => u.BeerCaseTransactions)
+			.Select(u => new UserSummaryDto()
+			{
+				CasesDebt = -u.BeerCaseTransactions.Sum(bct => bct.Amount),
+				CasesGiven = u.BeerCaseTransactions.Where(bct => bct.Amount > 0).Sum(bct => bct.Amount),
+				CasesReceived = -u.BeerCaseTransactions.Where(bct => bct.Amount < 0).Sum(bct => bct.Amount)
+			})
+			.FirstOrDefaultAsync();
+		return Ok(summary);
+	}
+
+
 	// Create
 
 	[HttpPost]

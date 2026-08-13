@@ -1,0 +1,33 @@
+type: http_request
+model: http_request
+id: rq_Ko3o7pdFho
+createdAt: 2026-08-13T00:51:03.146267300
+updatedAt: 2026-08-13T00:51:20.409425800
+workspaceId: wk_WrnpJ23d2Q
+folderId: fl_RhZpkLEpKS
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: HOST/users/{id}/summary
+sortPriority: 2000.0
+url: ${[ HOST ]}/users/313689155638919168/summary
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0
