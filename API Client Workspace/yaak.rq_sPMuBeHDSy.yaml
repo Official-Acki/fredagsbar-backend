@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_sPMuBeHDSy
 createdAt: 2026-07-12T23:34:53.495141400
-updatedAt: 2026-07-12T23:59:34.676544
+updatedAt: 2026-08-16T21:02:58.698160100
 workspaceId: wk_WrnpJ23d2Q
 folderId: fl_RhZpkLEpKS
 authentication: {}
@@ -13,7 +13,7 @@ description: ''
 headers: []
 method: GET
 name: HOST/users/{id}
-sortPriority: 333.3333333333333
+sortPriority: 1000.0
 url: ${[ HOST ]}/users/313689155638919168
 urlParameters:
 - enabled: true

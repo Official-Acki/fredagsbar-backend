@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_s69bnbKhws
 createdAt: 2026-07-11T23:47:59.693516500
-updatedAt: 2026-07-12T23:29:35.784193400
+updatedAt: 2026-08-16T21:02:58.700192900
 workspaceId: wk_WrnpJ23d2Q
 folderId: fl_RhZpkLEpKS
 authentication:
@@ -31,7 +31,7 @@ headers:
   id: WCcMAnfBx3
 method: POST
 name: ''
-sortPriority: 2000.0
+sortPriority: 4000.0
 url: ${[ HOST ]}/users
 urlParameters: []
 settingSendCookies:

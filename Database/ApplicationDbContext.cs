@@ -3,12 +3,14 @@ using Npgsql;
 
 namespace Fredagsbar.Backend.Database;
 
+using Fredagsbar.Backend.Database.Constants;
 using Models;
 
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
 	public DbSet<BeerCaseTransaction> BeerCaseTransactions { get; set; }
+	public DbSet<Rule> Rules { get; set; }
 	public DbSet<User> Users { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,6 +34,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 		modelBuilder.Entity<BeerCaseTransaction>()
 			.Property(e => e.Time)
 			.HasDefaultValueSql("now()");
+
+		modelBuilder.Entity<BeerCaseTransaction>()
+			.HasOne(e => e.Rule)
+			.WithMany(e => e.BeerCaseTransactions)
+			.HasForeignKey(e => e.RuleID);
 
 		// User
 		modelBuilder.Entity<User>()
@@ -83,6 +90,21 @@ public static class MigrationService
 		using var scope = services.CreateScope();
 		var ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 		await ctx.Database.MigrateAsync();
+		await ctx.SaveChangesAsync();
+	}
+
+	public static async Task SeedRules(this IServiceProvider services)
+	{
+		using var scope = services.CreateScope();
+		var ctx = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+		foreach (Rule rule in Rules.All)
+		{
+			if (!await ctx.Rules.AnyAsync(r => r.ID == rule.ID))
+			{
+				await ctx.Rules.AddAsync(rule);
+			}
+		}
 		await ctx.SaveChangesAsync();
 	}
 }

@@ -5,6 +5,7 @@ using Fredagsbar.Backend.Database;
 using Fredagsbar.Backend.Database.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Fredagsbar.Backend.Database.Constants;
 
 namespace Fredagsbar.Backend.Controllers;
 
@@ -77,7 +78,8 @@ public class UserController(IMapper mapper, ApplicationDbContext dbContext) : Ba
 		var caseTransaction = new BeerCaseTransaction()
 		{
 			UserID = user.Entity.ID,
-			Amount = -1
+			Amount = -1,
+			RuleID = Rules.StartingFee.ID,
 		};
 		await _dbContext.BeerCaseTransactions.AddAsync(caseTransaction);
 		await _dbContext.SaveChangesAsync();

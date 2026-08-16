@@ -1,10 +1,10 @@
 type: http_request
 model: http_request
-id: rq_Ko3o7pdFho
-createdAt: 2026-08-13T00:51:03.146267300
-updatedAt: 2026-08-16T21:02:58.699456
+id: rq_tP7TRRXfWZ
+createdAt: 2026-08-16T21:32:53.694598300
+updatedAt: 2026-08-16T21:33:00.619126700
 workspaceId: wk_WrnpJ23d2Q
-folderId: fl_RhZpkLEpKS
+folderId: fl_LJM4uHHmqW
 authentication: {}
 authenticationType: null
 body: {}
@@ -12,9 +12,9 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: HOST/users/{id}/summary
-sortPriority: 3000.0
-url: ${[ HOST ]}/users/313689155638919168/summary
+name: ''
+sortPriority: 4000.0
+url: ${[ HOST ]}/rules
 urlParameters: []
 settingSendCookies:
   enabled: false

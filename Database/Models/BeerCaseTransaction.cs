@@ -10,4 +10,7 @@ public class BeerCaseTransaction : BaseEntity
 	public DateTime Time { get; set; }
 	/// <summary>Positive is giving, negative is receiving (penalty)</summary>
 	public float Amount { get; set; }
+
+	public int? RuleID { get; set; }
+	public Rule Rule { get; } = null!;
 }

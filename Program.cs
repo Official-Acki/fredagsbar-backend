@@ -30,7 +30,9 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(opt =>
 	if (builder.Environment.IsDevelopment())
 	{
 		opt.UseInMemoryDatabase("LocalDev");
-	} else {
+	}
+	else
+	{
 		opt.UseNpgsql(
 			new NpgsqlConnectionStringBuilder
 			{
@@ -42,7 +44,7 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(opt =>
 			}.ConnectionString,
 			o => o
 				.SetPostgresVersion(18, 0)
-				// .MapEnum<Mood>("mood")
+		// .MapEnum<Mood>("mood")
 		);
 	}
 });
@@ -77,5 +79,6 @@ if (!app.Environment.IsDevelopment())
 	await app.Services.MigrateAsync(app.Environment);
 	app.Logger.LogInformation("Migrations complete");
 }
+await app.Services.SeedRules();
 
 app.Run();
