@@ -15,35 +15,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		// BeerCaseTransactions
-		modelBuilder.Entity<BeerCaseTransaction>()
-			.HasKey(e => e.ID);
-
-		modelBuilder.Entity<BeerCaseTransaction>()
-			.HasIndex(e => e.UserID);
-		modelBuilder.Entity<BeerCaseTransaction>()
-			.HasIndex(e => e.Time);
-		modelBuilder.Entity<BeerCaseTransaction>()
-			.HasIndex(e => new { e.UserID, e.Time });
-
-		modelBuilder.Entity<BeerCaseTransaction>()
-			.HasOne(e => e.User)
-			.WithMany(e => e.BeerCaseTransactions)
-			.HasForeignKey(e => e.UserID);
-
-		modelBuilder.Entity<BeerCaseTransaction>()
-			.Property(e => e.Time)
-			.HasDefaultValueSql("now()");
-
-		modelBuilder.Entity<BeerCaseTransaction>()
-			.HasOne(e => e.Rule)
-			.WithMany(e => e.BeerCaseTransactions)
-			.HasForeignKey(e => e.RuleID);
-
-		// User
-		modelBuilder.Entity<User>()
-			.HasIndex(e => e.Username)
-			.IsUnique();
+		modelBuilder.ApplyConfiguration(new BeerCaseTransactionConfiguration());
+		modelBuilder.ApplyConfiguration(new UserConfiguration());
 	}
 
 
