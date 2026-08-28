@@ -3,5 +3,7 @@ bin/
 obj/
 .env
 
+LocalDev.db*
+
 # Shared
 local-nuget-feed/

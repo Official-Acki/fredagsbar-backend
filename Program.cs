@@ -2,6 +2,8 @@ using Fredagsbar.Backend.Database;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
+const bool IN_MEMORY_DB = false;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.Configuration;
@@ -29,7 +31,14 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(opt =>
 {
 	if (builder.Environment.IsDevelopment())
 	{
-		opt.UseInMemoryDatabase("LocalDev");
+		if (IN_MEMORY_DB)
+		{
+			opt.UseInMemoryDatabase("LocalDev");
+		}
+		else
+		{
+			opt.UseSqlite("Data Source=LocalDev.db");
+		}
 	}
 	else
 	{
@@ -73,7 +82,7 @@ app.MapControllerRoute("default", pattern: "{controller=Home}/{action=Index}/{id
 
 // Web sockets
 // app.MapHub<LeaderboardHub>("/leaderboardHub");
-if (!app.Environment.IsDevelopment())
+if (!IN_MEMORY_DB)
 {
 	app.Logger.LogInformation("Running migrations (if any)...");
 	await app.Services.MigrateAsync(app.Environment);
