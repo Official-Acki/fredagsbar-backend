@@ -11,6 +11,11 @@ public class User : BaseEntity
 	public required string DisplayName { get; set; }
 
 	public ICollection<BeerCaseTransaction> BeerCaseTransactions { get; set; } = null!;
+
+	// Accusations
+	public ICollection<Accusation> Accusations { get; set; } = null!;
+	public ICollection<Accusation> Accused { get; set; } = null!;
+	public ICollection<AccusationVote> Votes { get; set; } = null!;
 }
 
 public class UserConfiguration : IEntityTypeConfiguration<User>

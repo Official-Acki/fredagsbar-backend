@@ -9,12 +9,16 @@ using Models;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
+	public DbSet<Accusation> Accusations { get; set; }
+	public DbSet<AccusationVote> AccusationVotes { get; set; }
 	public DbSet<BeerCaseTransaction> BeerCaseTransactions { get; set; }
 	public DbSet<Rule> Rules { get; set; }
 	public DbSet<User> Users { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
+		modelBuilder.ApplyConfiguration(new AccusationConfiguration());
+		modelBuilder.ApplyConfiguration(new AccusationVoteConfiguration());
 		modelBuilder.ApplyConfiguration(new BeerCaseTransactionConfiguration());
 		modelBuilder.ApplyConfiguration(new UserConfiguration());
 	}
