@@ -13,6 +13,7 @@ public class MappingProfile : Profile
 		CreateMap<UserCreateDto, User>();
 		CreateMap<User, UserDto>()
 			.ForMember(dto => dto.BeerCasesOwed, usr => usr.MapFrom(src => -src.BeerCaseTransactions.Sum(bct => bct.Amount)));
+		CreateMap<AccusationCreateDto, Accusation>();
 		CreateMap<Accusation, AccusationDto>()
 			.ForMember(dto => dto.YesVotes, acc => acc.MapFrom(src => src.Votes.Count(v => v.VotedFor)))
 			.ForMember(dto => dto.NoVotes, acc => acc.MapFrom(src => src.Votes.Count(v => !v.VotedFor)));
