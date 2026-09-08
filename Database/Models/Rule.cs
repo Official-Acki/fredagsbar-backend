@@ -9,4 +9,5 @@ public class Rule : BaseEntity
 	public required float BreachFee { get; set; }
 
 	public IEnumerable<BeerCaseTransaction> BeerCaseTransactions { get; set; } = null!;
+	public ICollection<Accusation> Accusations { get; set; } = null!;
 }
